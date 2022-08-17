@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/AlexisR3099/EmployeeTracker#readme",
   "dependencies": {
-    "inquirer": "^9.1.0",
+    "dotenv": "^16.0.1",
+    "inquirer": "^8.2.4",
     "mysql2": "^2.3.3"
   }
 }
