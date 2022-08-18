@@ -2,7 +2,6 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
 const ctable = require('console.table');
-const query = require('express/lib/middleware/query');
 dotenv.config();
 
 console.log("Welcome to Employee Tracker!!!");
@@ -235,7 +234,7 @@ function addRole() {
                 type: 'input',
                 message: 'Salary for the role?',
                 validate: (value) => {
-                    if(isNaN(value) === false) {
+                    if(isNaN(value)===false) {
                         return true;
                     }
                     console.log('Enter the salary for the role');
@@ -279,6 +278,7 @@ function viewAllDepartments() {
     db.query(`SELECT * FROM department`, (err, results) => {
         if (err) throw err;
         console.table("Display departments", results);
+        begin();
     });
 }
 
