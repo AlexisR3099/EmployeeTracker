@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
 const ctable = require('console.table');
+const query = require('express/lib/middleware/query');
 dotenv.config();
 
 console.log("Welcome to Employee Tracker!!!");
@@ -203,4 +204,115 @@ function updateEmployeeRole() {
             });
         })
     })
+}
+
+function viewAllRoles() {
+    db.query('SELECT * FROM role', (err, results) => {
+        if(err) throw err;
+        console.table(results);
+        begin();
+    });
+}
+
+function addRole() {
+    db.query('SELECT * FROM department', (err, results) => {
+        if(err) throw err;
+        inquirer.prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: "What is the title for the new role?",
+                validate: (value) => {
+                    if(value) {
+                        return true;
+                    } else {
+                        console.log('Please enter the title');
+                    }
+                }
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'Salary for the role?',
+                validate: (value) => {
+                    if(isNaN(value) === false) {
+                        return true;
+                    }
+                    console.log('Enter the salary for the role');
+                }
+            },
+            {
+                name: 'department',
+                type: 'rawlist',
+                choices: () => {
+                    let choiceArr = [];
+                    for (let i = 0; i < results.length; i++) {
+                        choiceArr.push(results[i].name);
+                    }
+                    return choiceArr;
+                },
+                message: 'What department is this role for?',
+            }
+        ]).then(answer => {
+            let departmentPicked;
+            for (let i = 0; i < results.length; i++) {
+                if(results[i].name === answer.department) {
+                    departmentPicked = results[i];
+                }
+            }
+            db.query('INSERT INTO role SET ?',
+            {
+                title: answer.title,
+                salary: answer.salary,
+                department_id: departmentPicked.id
+            },
+            (err) => {
+                if(err) throw err;
+                console.log(`${answer.title} was added as a role`);
+                begin();
+            });
+        });
+    });
+}
+
+function viewAllDepartments() {
+    db.query(`SELECT * FROM department`, (err, results) => {
+        if (err) throw err;
+        console.table("Display departments", results);
+    });
+}
+
+function addDepartment() {
+    inquirer.prompt([
+        {
+            name: 'department',
+            type: 'input',
+            message: 'Name of new department?',
+            validate: (value) => {
+                if (value) {
+                    return true;
+                } else {
+                    console.log('Enter a name');
+                }
+            }
+        }
+    ]).then(answer => {
+        db.query('INSERT INTO department SET ?',
+        {
+            name: answer.department
+        },
+        (err) => {
+            if(err) throw err;
+            console.log(`${answer.department} was added to departments`);
+            begin();
+        });
+    });
+}
+
+function quit() {
+    console.log('Goodbye!', (err, data) => {
+        if(err) throw err;
+        console.log(data);
+    });
+    process.exit();
 }
